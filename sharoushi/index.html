@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>社労士業務とAIエージェント</title>
+<style>
+:root{
+  --bg:#f7f6f2; --surface:#ffffff; --ink:#1f2328; --muted:#5b6370; --line:#e3e1da;
+  --accent:#1f4e45; --accent-soft:#e6efec;
+  --human:#c2570c; --human-bg:#fdf1e7; --human-line:#f3cfae;
+  --sys:#3b5b8c;   --sys-bg:#eaf0f8;   --sys-line:#c4d3ea;
+  --ai:#6b3fa0;    --ai-bg:#f2ecf9;    --ai-line:#d8c7ee;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171a; --surface:#1d2024; --ink:#e8e6e1; --muted:#a3a9b3; --line:#30343a;
+    --accent:#7fc4b3; --accent-soft:#1f2e2b;
+    --human:#f2a160; --human-bg:#2c2118; --human-line:#5a3d24;
+    --sys:#8fb0e3;   --sys-bg:#1a2230;   --sys-line:#2f3f5a;
+    --ai:#c3a3ec;    --ai-bg:#241d2f;    --ai-line:#45365c;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  line-height:1.8;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+h1,h2,h3{line-height:1.45;margin:0}
+h2{font-size:1.55rem;margin-bottom:8px}
+h3{font-size:1.08rem}
+.lead{color:var(--muted);margin:0 0 28px}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;color:var(--accent);font-weight:700;margin-bottom:6px}
+
+/* hero */
+.hero{padding:72px 0 56px;background:linear-gradient(180deg,var(--accent-soft),var(--bg))}
+.hero h1{font-size:clamp(1.6rem,4.2vw,2.5rem);margin:10px 0 18px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{max-width:720px;color:var(--muted);margin:0}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.pill{font-size:.82rem;padding:4px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+
+/* role tags */
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;border:1px solid}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.t-human{color:var(--human);background:var(--human-bg);border-color:var(--human-line)}
+.t-sys{color:var(--sys);background:var(--sys-bg);border-color:var(--sys-line)}
+.t-ai{color:var(--ai);background:var(--ai-bg);border-color:var(--ai-line)}
+
+/* legend */
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.role{background:var(--surface);border:1px solid var(--line);border-top:5px solid;border-radius:var(--radius);padding:20px}
+.role.human{border-top-color:var(--human)} .role.sys{border-top-color:var(--sys)} .role.ai{border-top-color:var(--ai)}
+.role h3{margin:8px 0 6px}
+.role p{margin:0 0 10px;color:var(--muted);font-size:.93rem}
+.role ul{margin:0;padding-left:1.1em;font-size:.93rem}
+
+/* tools */
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.tool h3{font-size:1rem;margin-bottom:4px}
+.tool .what{font-size:.88rem;color:var(--muted);margin:0 0 10px}
+.tool .how{font-size:.82rem;border-top:1px dashed var(--line);padding-top:8px;margin:0}
+
+/* flow */
+.flow{list-style:none;margin:0;padding:0;position:relative}
+.flow::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.step{position:relative;display:grid;grid-template-columns:44px 1fr;gap:14px;margin-bottom:12px}
+.num{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.95rem;position:relative;z-index:1;border:2px solid}
+.step.human .num{background:var(--human-bg);color:var(--human);border-color:var(--human)}
+.step.sys .num{background:var(--sys-bg);color:var(--sys);border-color:var(--sys)}
+.step.ai .num{background:var(--ai-bg);color:var(--ai);border-color:var(--ai)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.card .head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:2px}
+.card .head strong{font-size:1rem}
+.card p{margin:0;font-size:.9rem;color:var(--muted)}
+.example{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.95rem}
+
+/* phases */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column}
+.phase .badge{align-self:flex-start;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:6px;margin-bottom:10px}
+.phase.now .badge{background:var(--accent);color:#fff}
+.phase.next .badge{background:var(--accent-soft);color:var(--accent)}
+.phase.future .badge{background:var(--line);color:var(--muted)}
+.phase.future{border-style:dashed}
+.phase h3{margin-bottom:6px}
+.phase .cond{font-size:.84rem;color:var(--muted);margin:0 0 12px}
+.phase ul{list-style:none;margin:0;padding:0}
+.phase li{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem;display:flex;gap:8px;align-items:flex-start}
+.phase li .tag{margin-top:3px}
+
+/* table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.9rem}
+th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:.8rem;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:700;white-space:nowrap}
+
+/* boundary */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.box h3{margin-bottom:10px}
+.box ul{margin:0;padding-left:1.1em;font-size:.93rem}
+.box li{margin-bottom:6px}
+.box.ok{border-left:5px solid var(--accent)}
+.box.no{border-left:5px solid var(--human)}
+
+.checks{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.checks .box h3{font-size:.98rem}
+.note{font-size:.82rem;color:var(--muted);margin-top:18px}
+
+/* deadline */
+.pain{background:var(--human-bg);border:1px solid var(--human-line);border-radius:var(--radius);padding:18px 22px;margin-bottom:28px}
+.pain p{margin:0}
+.pain .q{font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:8px 0 10px}
+.rung{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;position:relative}
+.rung .when{font-weight:700;font-size:.95rem}
+.rung p{margin:4px 0 0;font-size:.84rem;color:var(--muted)}
+.rung.hot{border-color:var(--human);background:var(--human-bg)}
+.rung.over{border-color:var(--human);border-width:2px;background:var(--human-bg)}
+.subhead{font-size:1.08rem;margin:36px 0 12px}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.mock .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+.mock .body{padding:16px 20px;font-size:.9rem}
+.mock .body h4{margin:14px 0 6px;font-size:.92rem}
+.mock .body h4:first-child{margin-top:0}
+.mock .body ul{margin:0;padding-left:1.1em}
+.mock .body li{margin-bottom:4px}
+.red{color:var(--human);font-weight:700}
+.yearly{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.86rem}
+.month b{display:block;color:var(--accent);margin-bottom:2px}
+
+.closing{text-align:center;padding:64px 0 72px;border-bottom:none}
+.closing p.big{font-size:clamp(1.15rem,2.6vw,1.45rem);font-weight:700;line-height:1.7;margin:0 0 12px}
+.closing p{color:var(--muted);margin:0}
+
+@media (max-width:860px){
+  .tools{grid-template-columns:repeat(2,1fr)}
+  .phases,.legend,.checks{grid-template-columns:1fr}
+  .ladder{grid-template-columns:repeat(2,1fr)}
+  .yearly{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:600px){
+  .wrap{padding:0 16px}
+  section{padding:40px 0}
+  .tools,.two{grid-template-columns:1fr}
+}
+@media print{
+  section{break-inside:avoid}
+  .hero{background:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">社会保険労務士事務所さま向け ご提案資料</div>
+    <h1>社労士業務を置き換えるのではなく、<br><em>判断と申請の「前後」</em>をAIエージェントで軽くする</h1>
+    <p>手続きそのものより時間を取られがちな「依頼を読む・不足を確認する・催促する・データを整える・報告する」。この前後工程を、Google Workspace と既存ツールの上で AI エージェントが下ごしらえします。最終確認・申請・お客様への送信は、これまでどおり先生と事務所スタッフが行う設計です。</p>
+    <div class="pill-row">
+      <span class="pill">Google Workspace（Gmail・ドライブ・スプレッドシート・ドキュメント・カレンダー）</span>
+      <span class="pill">MyKomon</span>
+      <span class="pill">オフィスステーション Pro</span>
+    </div>
+  </div>
+</header>
+
+<!-- 役割 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">ROLES</div>
+    <h2>この資料での色分け：人・システム・AI</h2>
+    <p class="lead">以下、すべての工程にこの3色のラベルを付けています。「AIに任せる部分」と「人が持ち続ける部分」を混ぜずにご覧いただくためです。</p>
+    <div class="legend">
+      <div class="role human">
+        <span class="tag t-human">人</span>
+        <h3>先生・事務所スタッフ</h3>
+        <p>責任と判断が伴う部分。</p>
+        <ul>
+          <li>法的な判断・手続き要否の最終決定</li>
+          <li>AIが作った下書きの確認・修正</li>
+          <li>お客様への送信・電話対応</li>
+          <li>オフィスステーションでの登録・電子申請</li>
+        </ul>
+      </div>
+      <div class="role sys">
+        <span class="tag t-sys">システム</span>
+        <h3>決まったルールで動く仕組み</h3>
+        <p>AIを使わない、毎回同じ結果になる処理。</p>
+        <ul>
+          <li>Gmail・ドライブ・スプレッドシートの読み書き</li>
+          <li>決まった時刻の見回り・期限のアラート</li>
+          <li>CSVの列の並べ替え・形式チェック</li>
+          <li>操作の記録（ログ）</li>
+        </ul>
+      </div>
+      <div class="role ai">
+        <span class="tag t-ai">AI</span>
+        <h3>AIエージェント</h3>
+        <p>文章を読む・整理する・下書きする部分。</p>
+        <ul>
+          <li>依頼メールを読んで手続きの種類を推定</li>
+          <li>必要項目と届いた情報を突き合わせ、不足を洗い出す</li>
+          <li>確認・催促・完了報告の文面を下書き</li>
+          <li>案件の状況を要約し「今日やること」を整理</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ツール -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">TOOLS</div>
+    <h2>使うのは、すでにお使いのツールです</h2>
+    <p class="lead">新しい業務システムを入れ替えるのではなく、今の道具の「あいだ」に AI エージェントを置きます。つなぎ方はツールごとに異なります。</p>
+    <div class="tools">
+      <div class="tool">
+        <h3>Google Workspace</h3>
+        <p class="what">Gmail・ドライブ・スプレッドシート・ドキュメント・カレンダー・Chat</p>
+        <p class="how"><span class="tag t-sys">システム</span><br>Google が公開している連携機能で読み書きできます。<strong>AI エージェントの主な作業場所</strong>になります。</p>
+      </div>
+      <div class="tool">
+        <h3>スプレッドシート案件台帳</h3>
+        <p class="what">案件・期限・状況・担当を1枚で管理</p>
+        <p class="how"><span class="tag t-sys">システム</span><br>新たに作る台帳。人もAIも同じ表を見るので、誰が何を進めているかが一目で分かります。</p>
+      </div>
+      <div class="tool">
+        <h3>MyKomon</h3>
+        <p class="what">顧問先とのやり取り・顧客情報</p>
+        <p class="how"><span class="tag t-human">人</span> がCSV出力などで受け渡し。<br>外部から直接つなぐ仕組み（API）は現時点で公開情報を確認できていません。</p>
+      </div>
+      <div class="tool">
+        <h3>オフィスステーション Pro</h3>
+        <p class="what">労務手続き・電子申請</p>
+        <p class="how"><span class="tag t-human">人</span> がCSV取込・申請。<br>AIは取込用CSVの下準備まで。AIが直接操作・申請することはありません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- フロー -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">WORKFLOW</div>
+    <h2>入社手続きの例：誰が・どこで・何をするか</h2>
+    <p class="lead">現時点で無理なく組める流れです。AIの工程は、すべて人の確認を経てから外に出ます。</p>
+
+    <div class="example">顧問先からメール：「田中さんが11月1日に入社します。よろしくお願いします。」</div>
+
+    <ol class="flow">
+      <li class="step sys"><div class="num">1</div><div class="card"><div class="head"><span class="tag t-sys">システム</span><strong>受信を検知</strong></div><p>決まった時刻に Gmail の指定ラベル・指定アドレスを見回り、新しい依頼を拾います。</p></div></li>
+      <li class="step ai"><div class="num">2</div><div class="card"><div class="head"><span class="tag t-ai">AI</span><strong>依頼を読み、手続きの種類を推定</strong></div><p>「入社（資格取得）の可能性が高い」と分類し、案件台帳に1行追加する下書きを作ります。迷うものは「要確認」として人に回します。</p></div></li>
+      <li class="step ai"><div class="num">3</div><div class="card"><div class="head"><span class="tag t-ai">AI</span><strong>必要項目と照らして不足を洗い出す</strong></div><p>事務所で決めた「入社時の必要項目リスト」（スプレッドシート）と、メール本文・ドライブに届いた書類を突き合わせ、足りない項目を一覧にします。</p></div></li>
+      <li class="step ai"><div class="num">4</div><div class="card"><div class="head"><span class="tag t-ai">AI</span><strong>顧問先への確認メールを下書き</strong></div><p>不足項目だけを尋ねる文面を Gmail の<strong>下書き</strong>として作成します。送信はしません。</p></div></li>
+      <li class="step human"><div class="num">5</div><div class="card"><div class="head"><span class="tag t-human">人</span><strong>下書きを確認して送信</strong></div><p>内容を見て、必要なら直してから送ります。分類が違っていればここで修正します。</p></div></li>
+      <li class="step sys"><div class="num">6</div><div class="card"><div class="head"><span class="tag t-sys">システム</span><strong>期限・返信待ちを見張る</strong></div><p>返信が来ない、提出期限が近い、といった状態を台帳から拾い、担当者にお知らせします。</p></div></li>
+      <li class="step ai"><div class="num">7</div><div class="card"><div class="head"><span class="tag t-ai">AI</span><strong>情報がそろったら取込用データを準備</strong></div><p>集まった情報をオフィスステーションの CSV 形式に合わせて整え、ドライブに置きます（形式のチェックは <span class="tag t-sys">システム</span>）。</p></div></li>
+      <li class="step human"><div class="num">8</div><div class="card"><div class="head"><span class="tag t-human">人</span><strong>内容確認・取込・判断・申請</strong></div><p>CSV を確認してオフィスステーションへ取り込み、手続きの要否や内容を判断し、電子申請を行います。</p></div></li>
+      <li class="step ai"><div class="num">9</div><div class="card"><div class="head"><span class="tag t-ai">AI</span><strong>完了報告を下書き・台帳を更新</strong></div><p>「完了」と台帳に入れると、お客様向けの完了報告文を Gmail 下書きに作り、案件を完了に進めます。</p></div></li>
+      <li class="step human"><div class="num">10</div><div class="card"><div class="head"><span class="tag t-human">人</span><strong>報告を確認して送信</strong></div><p>最後の送信も人が行います。</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 期日・タスク管理 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">DEADLINES &amp; TASKS</div>
+    <h2>「次は何を、いつまでに？」を頭の中で抱えない</h2>
+    <p class="lead">社労士業務は、間違えてはいけない・期日を過ぎてはいけない仕事です。手続きそのものより、「あの件の期限はいつだったか」「催促はもう送ったか」と思い出し続けることが、神経をすり減らします。期日とタスクの管理は、基本的に AI エージェントと仕組みに任せられます。</p>
+
+    <div class="pain">
+      <p class="q">こんな状態を減らすための仕組みです</p>
+      <p>手帳・付箋・メール・頭の中に期限が散らばっている／担当者が休むと進み具合が分からない／月末や繁忙期に「何か忘れている気がする」が続く</p>
+    </div>
+
+    <div class="legend">
+      <div class="role sys">
+        <span class="tag t-sys">システム</span>
+        <h3>期限を計算し、必ず知らせる</h3>
+        <p>ここはあえて AI に推測させず、ルールで計算します。</p>
+        <ul>
+          <li>入社日・退職日などから、手続きごとの期限を自動で計算</li>
+          <li>期限を Google カレンダーと案件台帳に登録</li>
+          <li>7日前・3日前・前日・当日・超過の段階でお知らせ</li>
+          <li>完了が入力されるまで、毎日出し続ける</li>
+        </ul>
+      </div>
+      <div class="role ai">
+        <span class="tag t-ai">AI</span>
+        <h3>拾い上げ、整理し、次の一手を出す</h3>
+        <p>文章を読む・まとめる部分を担当します。</p>
+        <ul>
+          <li>メール本文から「入社日」「〆切」などの日付と依頼を拾い、タスク案を作る</li>
+          <li>毎朝「今日やること・今週の締切・止まっている案件」をまとめる</li>
+          <li>止まっている理由（返信待ち・書類不足など）を要約し、次の一手を提案</li>
+          <li>催促メールの下書きを用意</li>
+        </ul>
+      </div>
+      <div class="role human">
+        <span class="tag t-human">人</span>
+        <h3>ルールを決め、完了を入れる</h3>
+        <p>やることは「確認」と「完了の入力」が中心になります。</p>
+        <ul>
+          <li>手続きごとの期限ルールを確認・登録（最初に一度）</li>
+          <li>AIが拾ったタスク案の承認</li>
+          <li>作業が終わったら台帳で「完了」にする</li>
+          <li>アラートを受けて動く・判断する</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="subhead">例：11月1日入社の田中さん、期限までのお知らせの流れ</h3>
+    <p class="lead" style="margin-bottom:12px">入社日が台帳に入った時点で <span class="tag t-sys">システム</span> が期限を計算し、カレンダーに登録します。以降は人が覚えておく必要はありません。</p>
+    <div class="ladder">
+      <div class="rung"><div class="when">7日前</div><p>担当者へ予告。不足書類があれば <span class="tag t-ai">AI</span> が催促文を下書き</p></div>
+      <div class="rung"><div class="when">3日前</div><p>未完了なら再度お知らせ。止まっている理由を添えて</p></div>
+      <div class="rung hot"><div class="when">前日</div><p>担当者に加え、先生にもお知らせ</p></div>
+      <div class="rung hot"><div class="when">当日</div><p>朝いちばんのまとめの先頭に表示</p></div>
+      <div class="rung over"><div class="when">超過</div><p>完了が入るまで毎日、先生と担当者の両方へ</p></div>
+    </div>
+    <p class="note" style="margin-top:4px">※ 段階・通知先（担当者／先生）・通知の方法（Gmail・Google Chat・カレンダー通知）は事務所に合わせて決めます。期限の基準日は、事務所で確認したルールを登録して使います。</p>
+
+    <h3 class="subhead">毎朝届く「今日のまとめ」のイメージ</h3>
+    <div class="mock">
+      <div class="bar"><span>Google Chat ／ 毎朝 8:30</span><span><span class="tag t-sys">システム</span> が期限を集計 → <span class="tag t-ai">AI</span> が文章にまとめる</span></div>
+      <div class="body">
+        <h4>本日が期限（2件）</h4>
+        <ul>
+          <li><span class="red">A社 田中さん 入社手続き</span>：書類はそろっています。取込用 CSV をドライブに用意済み → 確認と取込をお願いします</li>
+          <li>B社 定例報告：報告書の下書きをドキュメントに作成済み</li>
+        </ul>
+        <h4>止まっている案件（1件）</h4>
+        <ul>
+          <li>C社 扶養追加：続柄の確認書類が未着。10/28 に依頼済み・返信なし → 催促メールの下書きを Gmail に用意しました</li>
+        </ul>
+        <h4>今週の締切（3件）</h4>
+        <ul>
+          <li>10/30 D社 退職手続き ／ 10/31 E社 ○○ ／ 11/1 F社 ○○</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note" style="margin-top:8px">※ 表示はイメージです。</p>
+
+    <h3 class="subhead">毎年くり返す手続きも、顧問先ごとに自動でタスク化</h3>
+    <p class="lead" style="margin-bottom:12px">顧問先一覧（スプレッドシート）をもとに、<span class="tag t-sys">システム</span> が時期になると顧問先ごとのタスクを台帳に作ります。<span class="tag t-ai">AI</span> は、前年のやり取りや注意点を要約して各タスクに添えます。</p>
+    <div class="yearly">
+      <div class="month"><b>4月</b>新年度の入社・異動の集中対応</div>
+      <div class="month"><b>6〜7月</b>労働保険の年度更新</div>
+      <div class="month"><b>7月</b>算定基礎届</div>
+      <div class="month"><b>通年</b>36協定などの有効期限・更新時期</div>
+    </div>
+    <p class="note" style="margin-top:8px">※ 対象とする手続き・時期・前倒しの日数は、事務所の運用に合わせて設定します。</p>
+
+    <div class="two" style="margin-top:28px">
+      <div class="box ok">
+        <h3>見落としにくくする設計</h3>
+        <ul>
+          <li>期限の計算とお知らせは AI ではなくルールで動かす（毎回同じ結果になる）</li>
+          <li>「完了」が入るまでお知らせが止まらない</li>
+          <li>期限が近づくと、担当者だけでなく先生にも届く</li>
+          <li>状況がスプレッドシート1枚にまとまり、担当者が休んでも引き継げる</li>
+        </ul>
+      </div>
+      <div class="box no">
+        <h3>ご理解いただきたいこと</h3>
+        <ul>
+          <li>台帳に入っていない案件は管理できません（電話や口頭の依頼は登録が必要）</li>
+          <li>メールからの日付の読み取りは AI の判断のため、タスク化の前に人の承認を挟みます</li>
+          <li>期限超過がゼロになることを保証するものではなく、気づくのが遅れにくくする仕組みです</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 段階 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">ROADMAP</div>
+    <h2>今できること、条件がそろえばできること</h2>
+    <p class="lead">一度にすべてを目指さず、確実に効果が出るところから始めます。右に行くほど、提供元の仕様確認や事務所内のルール整備が前提になります。</p>
+    <div class="phases">
+      <div class="phase now">
+        <span class="badge">STEP 1 ・ 今すぐ組める範囲</span>
+        <h3>Google Workspace の中で完結する下ごしらえ</h3>
+        <p class="cond">前提：依頼が Gmail に届く／書類がドライブに集まる</p>
+        <ul>
+          <li><span class="tag t-ai">AI</span>依頼メールの分類と案件台帳への登録案</li>
+          <li><span class="tag t-ai">AI</span>必要項目リストとの突き合わせ・不足の一覧化</li>
+          <li><span class="tag t-ai">AI</span>確認・催促・完了報告の Gmail 下書き</li>
+          <li><span class="tag t-sys">システム</span>期限の自動計算・カレンダー登録・段階的なお知らせ</li>
+          <li><span class="tag t-ai">AI</span>毎朝の「今日やること・今週の締切・止まっている案件」のまとめ</li>
+          <li><span class="tag t-sys">システム</span>毎年くり返す手続きの顧問先別タスク作成</li>
+        </ul>
+      </div>
+      <div class="phase next">
+        <span class="badge">STEP 2 ・ CSVでつなぐ</span>
+        <h3>MyKomon・オフィスステーションとファイルで橋渡し</h3>
+        <p class="cond">前提：各ツールの CSV 出力・取込の仕様を確認できること</p>
+        <ul>
+          <li><span class="tag t-ai">AI</span>オフィスステーション取込用 CSV の下準備</li>
+          <li><span class="tag t-sys">システム</span>CSV の形式チェック（桁・必須項目）</li>
+          <li><span class="tag t-ai">AI</span>MyKomon から出した顧客情報・履歴の整理と要約</li>
+          <li><span class="tag t-ai">AI</span>オフィスステーションから出した一覧の確認・抜け漏れ検出</li>
+          <li><span class="tag t-human">人</span>出力・取込の操作そのもの</li>
+        </ul>
+      </div>
+      <div class="phase future">
+        <span class="badge">STEP 3 ・ 将来の可能性</span>
+        <h3>ツール同士を直接つなぐ</h3>
+        <p class="cond">前提：提供元が外部連携の仕組み（API 等）を利用可能にしていること。現時点では未確認のため、お約束はしません</p>
+        <ul>
+          <li><span class="tag t-sys">システム</span>MyKomon の依頼・タスクを自動で取得</li>
+          <li><span class="tag t-sys">システム</span>オフィスステーションの手続き状況を自動で取得</li>
+          <li><span class="tag t-ai">AI</span>状況の変化に合わせた報告文の下書き</li>
+          <li><span class="tag t-human">人</span>申請と送信は引き続き人が行う想定</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 対象業務 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">USE CASES</div>
+    <h2>手続きごとの分担イメージ（STEP 1〜2の範囲）</h2>
+    <p class="lead">どの手続きでも「AIは下ごしらえ、人は判断と実行」という線は変わりません。</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>業務</th><th><span class="tag t-ai">AI</span> が下書き・整理</th><th><span class="tag t-sys">システム</span> が自動で</th><th><span class="tag t-human">人</span> が行う</th></tr></thead>
+        <tbody>
+          <tr><td>入社</td><td>不足項目の洗い出し、確認メール、取込用 CSV の下準備</td><td>期限のお知らせ、台帳の状態更新</td><td>手続き要否の判断、取込・申請、送信</td></tr>
+          <tr><td>退社</td><td>必要書類の案内文、離職理由など確認事項の整理</td><td>提出期限のお知らせ</td><td>離職理由の判断、申請、お客様への説明</td></tr>
+          <tr><td>扶養の追加・削除</td><td>届いた情報の整理、不足書類の一覧</td><td>返信待ちの見張り</td><td>要件の判断、申請</td></tr>
+          <tr><td>顧問先からの相談</td><td>相談内容の要約、過去のやり取りの整理、回答の論点メモ</td><td>受付の記録</td><td>回答内容の判断、回答</td></tr>
+          <tr><td>年次手続き</td><td>前年のやり取り・注意点の要約、案内文の下書き</td><td>時期になったら顧問先ごとにタスク作成、期限のお知らせ</td><td>内容確認、申請・提出</td></tr>
+          <tr><td>月次・定例</td><td>案件状況のまとめ、報告書のドキュメント下書き</td><td>集計表の作成</td><td>内容確認、お客様への提出</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 境界 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">BOUNDARY</div>
+    <h2>お約束すること・お約束しないこと</h2>
+    <p class="lead">期待と実際がずれないよう、現時点の線引きを明記します。</p>
+    <div class="two">
+      <div class="box ok">
+        <h3>この構成でお約束できること</h3>
+        <ul>
+          <li>依頼整理・不足確認・文面の下書き・期限管理の手間を減らす</li>
+          <li>期限を人が覚えておかなくても、段階的にお知らせが届く</li>
+          <li>AIが作ったものは必ず人の確認を通ってから外に出る</li>
+          <li>案件の状況がスプレッドシート1枚で見える</li>
+          <li>AIが何をしたかを記録に残す</li>
+        </ul>
+      </div>
+      <div class="box no">
+        <h3>現時点ではお約束しないこと</h3>
+        <ul>
+          <li>社労士業務の完全な自動化</li>
+          <li>AIがオフィスステーションを操作する・電子申請する</li>
+          <li>AIが MyKomon と直接つながる（提供元の仕様が未確認）</li>
+          <li>AIがお客様へメールを自動送信する</li>
+          <li>法的判断をAIが代わりに行う</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 事前に決めること -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">BEFORE START</div>
+    <h2>始める前に一緒に決めること</h2>
+    <p class="lead">AIの精度は「事務所のルールがどれだけ書き出されているか」に左右されます。最初の数週間は、このルールづくりと調整の期間とお考えください。</p>
+    <div class="checks">
+      <div class="box">
+        <h3>業務ルール</h3>
+        <ul>
+          <li>手続きごとの必要項目リスト</li>
+          <li>手続きごとの期限の基準と、お知らせの段階・通知先</li>
+          <li>顧問先ごとの例外・慣習</li>
+          <li>確認メールの言い回し・トーン</li>
+          <li>「要確認」として人に回す条件</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>個人情報の扱い</h3>
+        <ul>
+          <li>AIに読ませる範囲・読ませない範囲</li>
+          <li>マイナンバー等はAIの処理対象から外す前提で設計</li>
+          <li>ドライブの共有範囲・アクセス権限</li>
+          <li>記録の保存期間</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>ツール側の確認</h3>
+        <ul>
+          <li>MyKomon：CSV出力の範囲、外部連携の有無</li>
+          <li>オフィスステーション：CSV取込の仕様、外部連携の条件</li>
+          <li>Google Workspace：連携に使うアカウントと権限</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">※ MyKomon・オフィスステーション Pro の外部連携については、2026年10月時点の公開情報をもとに記載しています。提供元の仕様確認の結果により、STEP 2・3 の内容は変わる可能性があります。</p>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <p class="big">AIは下ごしらえ、判断と送信は人。<br>先生が判断に使える時間を、前後工程から取り戻します。</p>
+    <p>まずは STEP 1、入社手続きなど1つの業務から試すことをおすすめします。</p>
+  </div>
+</section>
+
+</body>
+</html>
