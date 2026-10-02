@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>営業組織向け AIエージェント活用提案</title>
+<style>
+:root{
+  --navy:#0b1f33;
+  --ink:#162536;
+  --muted:#617184;
+  --bg:#f6f8fb;
+  --card:#ffffff;
+  --line:#dfe6ee;
+  --green:#64d3a5;
+  --green2:#e9faf3;
+  --blue:#5fa8ff;
+  --blue2:#edf5ff;
+  --orange:#ffb36b;
+  --orange2:#fff4e8;
+  --red:#e97676;
+  --shadow:0 16px 44px rgba(17,36,58,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+.hero{background:radial-gradient(circle at 85% 10%, rgba(100,211,165,.24), transparent 32%),radial-gradient(circle at 70% 80%, rgba(95,168,255,.16), transparent 28%),linear-gradient(140deg,#081827,#0b2137 70%,#0f2a45);color:#fff;padding:86px 0 78px}
+.kicker{display:inline-block;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);border-radius:999px;padding:8px 14px;font-size:14px;letter-spacing:.08em;margin-bottom:22px}
+.hero h1{font-size:clamp(38px,5vw,68px);line-height:1.18;margin:0 0 24px;letter-spacing:-.03em}
+.hero h1 span{color:#8ee1bd}
+.hero p{font-size:20px;max-width:860px;color:#d8e2eb;margin:0}
+.hero .sub{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
+.pill{font-size:14px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}
+section{padding:76px 0}
+section.alt{background:#fff}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:.12em;color:#3e8d70;margin-bottom:10px}
+h2{font-size:36px;line-height:1.3;letter-spacing:-.02em;margin:0 0 18px}
+.lead{font-size:18px;color:var(--muted);max-width:860px;margin-bottom:34px}
+.grid{display:grid;gap:20px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 10px;font-size:21px}
+.card p{margin:0;color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:13px;border-radius:999px;padding:6px 10px;margin-bottom:12px}
+.tag.human{background:var(--orange2);color:#9a5c1b}
+.tag.system{background:var(--blue2);color:#346aa8}
+.tag.ai{background:var(--green2);color:#2f7b5e}
+.problem-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.problem{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start}
+.num{min-width:34px;height:34px;border-radius:10px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800}
+.problem strong{display:block;margin-bottom:3px}
+.problem small{display:block;color:var(--muted);font-size:14px;line-height:1.55}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:stretch;margin-top:28px}
+.step{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 18px}
+.step:after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);font-weight:800;color:#8ba0b6}
+.step:last-child:after{display:none}
+.step b{font-size:14px;color:#3e8d70}
+.step h4{margin:7px 0 6px;font-size:17px}
+.step p{font-size:14px;color:var(--muted);margin:0;line-height:1.55}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th,td{padding:16px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;letter-spacing:.05em;color:#526679;background:#f8fafc}
+td{font-size:15px}
+tr:last-child td{border-bottom:0}
+.demo{background:linear-gradient(135deg,#0b1f33,#123656);color:#fff;border-radius:28px;padding:34px;box-shadow:var(--shadow)}
+.demo-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start}
+.chat{background:#fff;color:var(--ink);border-radius:18px;padding:18px}
+.msg{padding:12px 14px;border-radius:14px;margin-bottom:10px;font-size:14px;line-height:1.6}
+.msg.ai{background:#eef8f3;border:1px solid #d7efe4}
+.msg.human{background:#f2f5f8;border:1px solid #e2e7ec;margin-left:40px}
+.demo ul{margin:8px 0 0 20px;padding:0;color:#d8e2eb}
+.demo li{margin:6px 0}
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.phase{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}
+.phase .no{font-weight:900;font-size:13px;color:#3e8d70}
+.phase h3{margin:6px 0 8px}
+.phase p{margin:0;color:var(--muted)}
+.boundary{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ok,.ng{border-radius:20px;padding:26px}
+.ok{background:#edf9f4;border:1px solid #cfeede}
+.ng{background:#fff4f4;border:1px solid #f2d7d7}
+.ok h3,.ng h3{margin-top:0}
+.ok ul,.ng ul{padding-left:20px;margin-bottom:0}
+.ok li,.ng li{margin:8px 0}
+.cta{text-align:center;background:#fff;border:1px solid var(--line);border-radius:28px;padding:48px 30px;box-shadow:var(--shadow)}
+.cta h2{font-size:38px}
+.cta p{max-width:760px;margin:0 auto 22px;color:var(--muted)}
+.footer{padding:32px 0 50px;color:#718096;font-size:13px;text-align:center}
+@media(max-width:850px){
+  .g3,.g2,.problem-list,.timeline,.boundary,.demo-grid{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .step:after{content:"↓";right:auto;left:50%;top:auto;bottom:-19px;transform:translateX(-50%)}
+  h2{font-size:30px}
+  section{padding:58px 0}
+}
+@media print{
+  body{background:#fff}
+  .hero{padding:54px 0}
+  section{padding:44px 0}
+  .card,.demo,.cta{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">営業組織向け AIエージェント活用提案</div>
+    <h1>営業を置き換えるのではなく、<br><span>営業の「前後」をAI社員に任せる。</span></h1>
+    <p>商談、追客、顧客管理、情報整理、日々の事務作業。<br>売上をつくる人が「入力・確認・思い出す仕事」に追われない状態を、今あるツールを活かしながらつくります。</p>
+    <div class="sub"><span class="pill">今の業務を大きく変えない</span><span class="pill">人が最終判断を持つ</span><span class="pill">小さく始めて拡張</span></div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">CURRENT STATE</div>
+    <h2>営業現場で起きやすい「AI導入前」の状態</h2>
+    <p class="lead">ツールは増えているのに、入力・転記・確認・追客は人に残ったまま。AIチャットを使っていても、毎回人が指示を出さなければ動かないため、忙しさそのものは減りにくい状態です。</p>
+    <div class="problem-list">
+      <div class="problem"><div class="num">01</div><div><strong>商談前後の作業が多い</strong><small>事前調査、議事録、顧客情報更新、お礼文、次回アクション登録まで営業担当が実施。</small></div></div>
+      <div class="problem"><div class="num">02</div><div><strong>CRM・SFAへの入力が続かない</strong><small>入力負荷が高く、結局スプレッドシートや個人管理に戻ってしまう。</small></div></div>
+      <div class="problem"><div class="num">03</div><div><strong>追客が属人的</strong><small>誰に・いつ・何を送るかが各担当者の記憶と判断に依存する。</small></div></div>
+      <div class="problem"><div class="num">04</div><div><strong>見込み客が眠っている</strong><small>過去リードや既存接点はあるが、掘り起こすための継続的な行動量を確保できない。</small></div></div>
+      <div class="problem"><div class="num">05</div><div><strong>チャネルが分散する</strong><small>メール、チャット、SNSなど確認先が増え、対応漏れや確認コストが上がる。</small></div></div>
+      <div class="problem"><div class="num">06</div><div><strong>営業が事務作業に埋もれる</strong><small>見積、資料、表計算、集計、転記などに時間を使い、顧客接点の時間が削られる。</small></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">ROLES</div>
+    <h2>「人・システム・AI」を混ぜない</h2>
+    <p class="lead">安全に実務へ入れるために、誰が何をするかを明確に分けます。何でもAIに任せるのではなく、判断は人、定型処理はシステム、文章理解や整理はAIに寄せます。</p>
+    <div class="grid g3">
+      <div class="card"><div class="tag human">人</div><h3>責任・判断・対外コミュニケーション</h3><p>提案方針、金額、重要な顧客対応、最終送信、例外判断など。売上と関係性に直結する仕事は人が持ちます。</p></div>
+      <div class="card"><div class="tag system">システム</div><h3>決まったルールで繰り返す処理</h3><p>定刻実行、期限監視、転記、ファイル移動、形式チェック、ログ保存など、同じ結果を返す処理を担当します。</p></div>
+      <div class="card"><div class="tag ai">AIエージェント</div><h3>読む・考える・整理する・下書きする</h3><p>商談内容の要約、顧客状況の整理、次の一手の提案、メールやチャットの下書き、優先順位付けを行います。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">TOOLS</div>
+    <h2>新しい業務システムに総入れ替えしない</h2>
+    <p class="lead">Google Workspace、スプレッドシート、CRM/SFA、メール、各種チャットなど、すでに使っている環境を活かし、その「あいだ」にAIエージェントを置く考え方です。</p>
+    <div class="grid g2">
+      <div class="card"><div class="tag system">既存ツール</div><h3>Google Workspace / Microsoft 365</h3><p>メール、カレンダー、ドライブ、表計算、ドキュメントをAIエージェントの主な作業場所にできます。</p></div>
+      <div class="card"><div class="tag system">既存ツール</div><h3>CRM / SFA / 顧客台帳</h3><p>APIやCSV連携が可能な場合は自動連携。難しい場合は、今使っているスプレッドシートを入口にする設計も可能です。</p></div>
+      <div class="card"><div class="tag system">既存ツール</div><h3>メール / チャット</h3><p>複数チャネルの内容を拾い、対応要否の整理や返信案作成を行います。自動送信は用途を限定して設計します。</p></div>
+      <div class="card"><div class="tag ai">AIエージェント</div><h3>24時間動く「営業アシスタント」</h3><p>人から都度指示されるだけでなく、決めた条件を定期的に確認し、必要な仕事を拾って実行・提案します。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">WORKFLOW 01</div>
+    <h2>商談の「前後」を軽くする</h2>
+    <p class="lead">営業担当は商談と判断に集中。AIエージェントは、商談の準備・記録・次の一手の下ごしらえを担います。</p>
+    <div class="flow">
+      <div class="step"><b>STEP 1</b><h4>事前情報を集める</h4><p>会社・担当者・過去接点・関連資料をまとめる。</p></div>
+      <div class="step"><b>STEP 2</b><h4>商談を実施</h4><p>人は顧客理解と提案に集中する。</p></div>
+      <div class="step"><b>STEP 3</b><h4>文字起こしを整理</h4><p>課題、要望、懸念、決定事項を構造化する。</p></div>
+      <div class="step"><b>STEP 4</b><h4>次回アクション化</h4><p>期限・担当・次回連絡の候補を作る。</p></div>
+      <div class="step"><b>STEP 5</b><h4>お礼・追客を準備</h4><p>内容に合わせた文面を下書きし、人が確認して送る。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">WORKFLOW 02</div>
+    <h2>追客を「思い出す仕事」から外す</h2>
+    <div class="demo">
+      <div class="demo-grid">
+        <div>
+          <h3 style="font-size:28px;margin-top:0">毎朝届く「今日の営業アクション」</h3>
+          <p style="color:#d8e2eb">AIエージェントが顧客台帳・商談履歴・期限を確認し、その日に動くべき案件をまとめます。</p>
+          <ul>
+            <li>今日フォローする見込み客</li><li>返答待ちで止まっている案件</li><li>見積提出後、未接触の案件</li><li>過去リードから掘り起こす候補</li><li>送付すべき文面の下書き</li>
+          </ul>
+        </div>
+        <div class="chat">
+          <div class="msg ai">本日のフォロー候補は6件です。優先度順に並べました。</div>
+          <div class="msg ai">① 見積提出から5日経過：状況確認の文面を下書き済みです。</div>
+          <div class="msg ai">② 前回「来月再検討」：本日が再接触日です。</div>
+          <div class="msg ai">③ 過去リード：最近の反応が増えているため、再提案候補です。</div>
+          <div class="msg human">1〜3を確認。文面だけ少し短くして。</div>
+          <div class="msg ai">修正版を用意しました。送信は人が確認して行います。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">USE CASES</div>
+    <h2>営業部門で使える具体例</h2>
+    <p class="lead">一度に全部を自動化せず、負荷が高く、効果が見えやすいところから始めます。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>業務</th><th>AIエージェント</th><th>システム</th><th>人</th></tr></thead>
+        <tbody>
+          <tr><td>商談前準備</td><td>会社・担当者・過去履歴の要約</td><td>予定を検知、関連データを取得</td><td>確認して商談へ</td></tr>
+          <tr><td>商談後処理</td><td>議事録、課題、次回アクション、連絡文面の下書き</td><td>顧客台帳・タスクへ反映</td><td>内容確認・判断</td></tr>
+          <tr><td>追客</td><td>状況に合わせたフォロー文面を作成</td><td>期限監視、対象案件抽出</td><td>送信・例外判断</td></tr>
+          <tr><td>休眠顧客掘り起こし</td><td>優先候補の理由付け、文面作成</td><td>対象リストを抽出</td><td>対象承認・送信</td></tr>
+          <tr><td>CRM / SFA入力</td><td>会話やメモを項目ごとに整理</td><td>API・CSV・定型処理で反映</td><td>必要箇所のみ確認</td></tr>
+          <tr><td>見積・資料作成</td><td>要件からドラフト作成</td><td>テンプレートへ差し込み</td><td>条件・金額を最終確認</td></tr>
+          <tr><td>SNS起点の営業</td><td>反応分析、接触候補、DM案作成</td><td>公開情報の収集・一覧化</td><td>接触可否の判断、送信</td></tr>
+          <tr><td>管理者向け集計</td><td>案件停滞理由・重要論点を要約</td><td>案件数、進捗、期限を集計</td><td>意思決定・マネジメント</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">DESIGN PRINCIPLE</div>
+    <h2>「今のやり方を捨てる」より、「今のやり方の上にAIを置く」</h2>
+    <p class="lead">CRMやSFAを導入しても、現場が使わなければ定着しません。まずは現在の入力先や運用を残し、AIが裏側で整理・転記する設計から始めることができます。</p>
+    <div class="grid g3">
+      <div class="card"><div class="tag human">現場</div><h3>今までの入力方法を維持</h3><p>スプレッドシートや既存フォームをそのまま使う。</p></div>
+      <div class="card"><div class="tag ai">AI</div><h3>意味を読み取って整理</h3><p>各担当者の書き方の違いを吸収し、共通項目へ変換する。</p></div>
+      <div class="card"><div class="tag system">裏側</div><h3>必要な場所へ反映</h3><p>CRM、SFA、管理台帳などへAPIやCSVで反映する。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">ROADMAP</div>
+    <h2>小さく始めて、AI社員を育てる</h2>
+    <p class="lead">最初から「完全自動化」を目指しません。効果が出やすい1〜2業務を作り、現場で使いながら範囲を広げます。</p>
+    <div class="timeline">
+      <div class="phase"><div class="no">PHASE 1</div><h3>自分のアシスタント</h3><p>商談前後、メール下書き、予定整理など、個人業務から始めます。</p></div>
+      <div class="phase"><div class="no">PHASE 2</div><h3>チームの営業エージェント</h3><p>追客、顧客管理、リード掘り起こし、共有業務へ広げます。</p></div>
+      <div class="phase"><div class="no">PHASE 3</div><h3>会社横断のAI社員</h3><p>営業・経理・採用・バックオフィスをまたぐワークフローへ拡張します。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">BOUNDARY</div>
+    <h2>できること・約束しないこと</h2>
+    <p class="lead">期待値を上げすぎず、現実的に運用できる線を最初に決めます。</p>
+    <div class="boundary">
+      <div class="ok"><h3>現実的に狙えること</h3><ul><li>入力・転記・要約・下書きの手作業を減らす</li><li>追客対象や期限を自動で拾い上げる</li><li>商談履歴や顧客情報を蓄積しやすくする</li><li>既存ツールを活かしながら導入する</li><li>人が判断する前の「下ごしらえ」を自動化する</li><li>実行ログを残し、何をしたか追えるようにする</li></ul></div>
+      <div class="ng"><h3>最初から約束しないこと</h3><ul><li>営業活動の完全無人化</li><li>すべての外部サービスとの自動連携</li><li>重要顧客への完全自動送信</li><li>人の承認なしでの金額・契約条件の決定</li><li>APIがないツールとの確実な自動操作</li><li>一度作れば調整不要という運用</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">START</div>
+    <div class="cta">
+      <h2>最初の1業務から始める。</h2>
+      <p>おすすめは「商談後処理」「追客」「CRM入力」のいずれかです。現状業務を棚卸しし、実装コストと削減効果を見ながら優先順位を決めます。</p>
+      <div class="grid g3" style="text-align:left;margin-top:26px">
+        <div class="card"><h3>1. 業務を棚卸し</h3><p>誰が、いつ、何を見て、何を入力しているかを整理。</p></div>
+        <div class="card"><h3>2. 人とAIの境界を決定</h3><p>AIに任せる工程と、人が確認する工程を明確化。</p></div>
+        <div class="card"><h3>3. 1つ作って運用開始</h3><p>現場で使いながら改善し、次のワークへ広げる。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="wrap">AIエージェント導入提案資料｜汎用版<br>本資料は特定企業・特定個人に依存しない構成です。</div></footer>
+</body>
+</html>
