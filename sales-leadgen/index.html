@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>営業・集客部門向け 商談生成AIエージェント</title>
+<style>
+:root{
+  --navy:#10233f;
+  --navy2:#183656;
+  --ink:#1f2d3d;
+  --muted:#66778a;
+  --line:#dfe8ef;
+  --bg:#f6f9fb;
+  --white:#fff;
+  --green:#dff5eb;
+  --green2:#7cc9a5;
+  --blue:#e8f1fb;
+  --blue2:#8eb7de;
+  --sand:#f5f0e9;
+  --warn:#fff4df;
+  --shadow:0 14px 40px rgba(16,35,63,.08);
+  --radius:22px;
+  --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  color:var(--ink);
+  background:var(--white);
+  line-height:1.75;
+}
+a{color:inherit}
+.container{width:min(var(--max),calc(100% - 40px));margin:0 auto}
+.section{padding:96px 0}
+.section.alt{background:var(--bg)}
+.eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#5c7692;font-weight:700;margin-bottom:12px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(38px,6vw,72px);line-height:1.15;letter-spacing:-.03em;color:var(--navy);margin-bottom:24px}
+h2{font-size:clamp(30px,4vw,46px);line-height:1.25;letter-spacing:-.02em;color:var(--navy);margin-bottom:18px}
+h3{font-size:20px;color:var(--navy);margin-bottom:10px}
+.lead{font-size:19px;color:var(--muted);max-width:820px}
+.small{font-size:13px;color:var(--muted)}
+.hero{padding:88px 0 70px;background:linear-gradient(180deg,#f9fbfd 0%,#fff 100%);border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:50px;align-items:center}
+.hero-copy .kicker{display:inline-block;padding:8px 12px;border-radius:999px;background:var(--green);color:#2a6e56;font-weight:700;font-size:13px;margin-bottom:22px}
+.hero-copy p{font-size:19px;color:var(--muted);max-width:720px}
+.hero-panel{background:var(--navy);color:#fff;border-radius:28px;padding:28px;box-shadow:var(--shadow)}
+.hero-flow{display:grid;gap:12px}
+.hero-step{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:15px 16px;border-radius:16px}
+.hero-step b{display:block;font-size:13px;color:#b9d9ff;margin-bottom:3px}
+.hero-note{margin-top:16px;font-size:13px;color:#d6e4ef}
+.grid{display:grid;gap:20px}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:0 6px 22px rgba(16,35,63,.035)}
+.card .num{font-size:12px;font-weight:800;letter-spacing:.12em;color:#7f94a8;margin-bottom:14px}
+.card p{color:var(--muted);margin-bottom:0}
+.problem{border-left:4px solid #8db8dd}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+.compare{border-radius:24px;padding:28px;border:1px solid var(--line)}
+.compare.normal{background:#fff}
+.compare.agent{background:linear-gradient(145deg,#edf7f3,#f7fbfa)}
+.compare ul{padding-left:20px;margin-bottom:0;color:var(--muted)}
+.badge{display:inline-block;font-size:12px;font-weight:800;padding:6px 10px;border-radius:999px;margin-bottom:12px}
+.badge.normal{background:#eef2f5;color:#5e6f80}
+.badge.agent{background:#d9f3e7;color:#24684e}
+.role{position:relative;overflow:hidden}
+.role:before{content:"";position:absolute;inset:0 auto 0 0;width:6px;border-radius:10px}
+.role.human:before{background:#183656}
+.role.system:before{background:#8eb7de}
+.role.ai:before{background:#7cc9a5}
+.role ul{padding-left:18px;color:var(--muted);margin-bottom:0}
+.workflow{display:grid;gap:16px}
+.flowline{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:stretch}
+.flowstep{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 14px;text-align:center;font-weight:700;color:var(--navy);min-height:92px;display:flex;align-items:center;justify-content:center;position:relative}
+.flowstep:not(:last-child):after{content:"→";position:absolute;right:-15px;top:50%;transform:translateY(-50%);color:#9db0c1;font-weight:700;z-index:2}
+.flow-caption{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:20px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:780px}
+th,td{text-align:left;padding:16px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f7fafc;color:var(--navy);font-size:13px;letter-spacing:.04em}
+td{font-size:14px;color:#425466}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-block;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:700}
+.tag.ai{background:var(--green);color:#24684e}
+.tag.sys{background:var(--blue);color:#3d6f9f}
+.tag.human{background:#edf0f4;color:#39495a}
+.before-after{display:grid;grid-template-columns:1fr 80px 1fr;gap:18px;align-items:center}
+.ba-box{border-radius:24px;padding:28px;border:1px solid var(--line);background:#fff}
+.ba-box.after{background:linear-gradient(145deg,#eff8f4,#fff)}
+.ba-box ul{padding-left:20px;color:var(--muted);margin-bottom:0}
+.arrow{font-size:34px;text-align:center;color:#8aa0b3}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.tool{padding:10px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#496070;font-size:14px}
+.callout{background:var(--navy);color:#fff;border-radius:28px;padding:34px}
+.callout h3{color:#fff;font-size:28px}
+.callout p{color:#d5e2ed;margin-bottom:0}
+.roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.phase{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;position:relative}
+.phase .phase-no{font-size:12px;color:#70879b;font-weight:800;letter-spacing:.1em;margin-bottom:8px}
+.phase p{color:var(--muted);margin-bottom:0}
+.boundary{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.boundary-box{border-radius:24px;padding:28px}
+.boundary-box.yes{background:#edf8f3;border:1px solid #caeadb}
+.boundary-box.no{background:#fff8e9;border:1px solid #f1dfb5}
+.boundary-box ul{padding-left:20px;margin-bottom:0;color:#536473}
+.start-box{display:grid;grid-template-columns:1fr .8fr;gap:30px;align-items:center;background:#f7fafc;border:1px solid var(--line);border-radius:28px;padding:38px}
+.criteria{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.criterion{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px;color:#496070;font-size:14px}
+footer{padding:32px 0 48px;color:#7b8c9b;font-size:12px;background:#fff;border-top:1px solid var(--line)}
+.nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(223,232,239,.85)}
+.nav-inner{width:min(var(--max),calc(100% - 40px));margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{font-weight:800;color:var(--navy);letter-spacing:-.02em}
+.nav-links{display:flex;gap:18px;font-size:13px;color:#60768a}
+.nav-links a{text-decoration:none}
+.note{padding:14px 16px;border-radius:14px;background:#f8fbfd;border:1px dashed #cddbe6;font-size:13px;color:#607487;margin-top:18px}
+@media(max-width:900px){
+  .hero-grid,.split,.before-after,.boundary,.start-box{grid-template-columns:1fr}
+  .grid.cols-4{grid-template-columns:repeat(2,1fr)}
+  .grid.cols-3{grid-template-columns:1fr}
+  .roadmap{grid-template-columns:1fr}
+  .flowline{grid-template-columns:1fr 1fr}
+  .flowstep:not(:last-child):after{display:none}
+  .arrow{transform:rotate(90deg)}
+  .nav-links{display:none}
+}
+@media(max-width:640px){
+  .container{width:min(100% - 24px,var(--max))}
+  .section{padding:68px 0}
+  .hero{padding:54px 0}
+  .grid.cols-2,.grid.cols-4,.criteria{grid-template-columns:1fr}
+  .flowline{grid-template-columns:1fr}
+  .card,.compare,.phase,.boundary-box{padding:22px}
+  h1{font-size:42px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">商談生成 AIエージェント設計</div>
+    <div class="nav-links">
+      <a href="#current">現状</a>
+      <a href="#roles">役割分担</a>
+      <a href="#channels">SNS例</a>
+      <a href="#content-pdca">投稿PDCA</a>
+      <a href="#workflow">業務フロー</a>
+      <a href="#usecase">活用例</a>
+      <a href="#roadmap">導入</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="kicker">営業・集客部門向け 商談生成AIエージェント</span>
+      <h1>見込み客を集め、育て、<br>「商談生成」をAI社員に任せる。</h1>
+      <p>Facebook、LinkedIn、Xなどの接点から見込み客候補を見つけ、反応を整理し、アプローチ候補を出し、DMやフォローを準備する。営業担当が毎回ゼロから商談をつくるのではなく、「商談が生まれるまでの流れ」をAI社員と仕組みで回していきます。</p>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-flow">
+        <div class="hero-step"><b>01 接点をつくる</b>市場・競合・ニュースを調べ、投稿を継続生成し、反応を集める</div>
+        <div class="hero-step"><b>02 商談候補を見つける</b>CRM照合・条件判定・優先順位づけを行う</div>
+        <div class="hero-step"><b>03 アプローチを準備する</b>DM・フォロー・再接触文面を下書きする</div>
+        <div class="hero-step"><b>04 商談につなぐ</b>返信・日程調整・商談化を記録し、人が会話を引き継ぐ</div>
+      </div>
+      <div class="hero-note">目指すのは完全自動営業ではなく、「商談候補が継続的に生まれる仕組み」です。送信・公開・重要判断は人が担います。</div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="current">
+  <div class="container">
+    <div class="eyebrow">01 CURRENT STATE</div>
+    <h2>商談は、「営業担当が頑張った時だけ」生まれやすい。</h2>
+    <p class="lead">新規商談を増やすには、発信、反応者確認、候補抽出、DM、返信、フォロー、掘り起こしを継続する必要があります。ところが、この一連の活動が人の手作業に依存すると、忙しいほど商談生成が止まりやすくなります。</p>
+
+    <div class="grid cols-4" style="margin-top:34px">
+      <div class="card problem"><div class="num">01</div><h3>見込み客情報が分散</h3><p>SNS、チャット、管理表、CRMなど複数の場所に接点情報が残り、全体像をつかみにくい。</p></div>
+      <div class="card problem"><div class="num">02</div><h3>候補抽出が手作業</h3><p>誰に声をかけるかを毎回人が探し、優先順位づけまで担当者の経験に依存する。</p></div>
+      <div class="card problem"><div class="num">03</div><h3>入力と転記が多い</h3><p>送信結果、返信、商談化、次回アクションなどを複数の場所へ入力し直す作業が発生する。</p></div>
+      <div class="card problem"><div class="num">04</div><h3>追客が記憶頼み</h3><p>「いつ、誰に、何を送るか」が個人の記憶やカレンダーに依存し、フォロー漏れが起きやすい。</p></div>
+      <div class="card problem"><div class="num">05</div><h3>文章作成が毎回ゼロから</h3><p>DM、お礼、リマインド、追客など、似た文章を毎回考えるため時間がかかる。</p></div>
+      <div class="card problem"><div class="num">06</div><h3>商談前の調査がばらつく</h3><p>会社情報や過去接点の確認品質が担当者ごとに異なり、準備の抜け漏れが生まれる。</p></div>
+      <div class="card problem"><div class="num">07</div><h3>商談後の更新が後回し</h3><p>議事録、CRM更新、次回アクション、お礼作成が商談後にまとめて発生し、入力が遅れる。</p></div>
+      <div class="card problem"><div class="num">08</div><h3>判断と作業が混在</h3><p>本来は人が担うべき営業判断と、機械でよい定型作業が混ざり、担当者の負荷が高くなる。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="eyebrow">02 WHY AI AGENT</div>
+    <h2>「聞いたら答えるAI」から、「決めた条件で動くAI」へ。</h2>
+    <div class="split" style="margin-top:30px">
+      <div class="compare normal">
+        <span class="badge normal">通常の生成AI</span>
+        <h3>毎回、人が仕事を頼む</h3>
+        <ul>
+          <li>人がプロンプトを入力する</li>
+          <li>その場の回答を受け取る</li>
+          <li>次の作業はまた人が指示する</li>
+          <li>記録や通知は別作業になりやすい</li>
+        </ul>
+      </div>
+      <div class="compare agent">
+        <span class="badge agent">AIエージェント</span>
+        <h3>条件に沿って、確認・整理・準備する</h3>
+        <ul>
+          <li>決めた時間や条件で対象を確認する</li>
+          <li>必要な情報を集めて整理する</li>
+          <li>文面や次回アクションを下書きする</li>
+          <li>人に「判断すべき状態」で渡す</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">重要なのは「AIが営業担当の代わりにクロージングすること」ではありません。見込み客の発見・整理・アプローチ準備・フォローを継続し、商談候補を営業へ渡す仕組みにすることです。</div>
+  </div>
+</section>
+
+<section class="section" id="roles">
+  <div class="container">
+    <div class="eyebrow">03 ROLE DESIGN</div>
+    <h2>商談生成を仕組みにしながら、人の役割は残す。</h2>
+    <p class="lead">AI社員が見込み客候補の整理や文面準備を担い、システムが定刻実行・記録を担う。営業担当は、返信後の会話・商談・重要判断に集中します。</p>
+    <div class="grid cols-3" style="margin-top:32px">
+      <div class="card role human"><h3>人が担う</h3><ul><li>重要顧客への対応</li><li>承認・最終送信</li><li>価格や条件の判断</li><li>例外対応</li><li>関係性をつくる会話</li></ul></div>
+      <div class="card role system"><h3>システムが担う</h3><ul><li>定刻実行</li><li>条件判定</li><li>データ取得</li><li>転記・同期</li><li>通知・ログ記録</li></ul></div>
+      <div class="card role ai"><h3>AIが担う</h3><ul><li>要約・分類</li><li>文章の下書き</li><li>優先順位づけ</li><li>事前情報の整理</li><li>次回アクション案</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="channels">
+  <div class="container">
+    <div class="eyebrow">04 CHANNEL EXAMPLES</div>
+    <h2>Facebook・LinkedIn・Xを、「発信」で終わらせず商談につなげる。</h2>
+    <p class="lead">SNSごとに役割は異なります。大切なのは、投稿や接続申請そのものではなく、その後の「反応者の把握 → 候補化 → アプローチ → フォロー → 商談化」までを一つの流れとして設計することです。</p>
+
+    <div class="grid cols-3" style="margin-top:32px">
+      <div class="card">
+        <div class="num">FACEBOOK</div>
+        <h3>投稿反応を、DM候補へ変える</h3>
+        <p>投稿へのいいね・コメントなどの反応者を取得し、CRMの人物情報と照合。役職や過去接点などをもとに優先度を付け、DM候補として営業へ渡します。</p>
+        <div class="note">例：投稿 → 反応者取得 → CRM照合 → 優先順位 → DM下書き → 人が確認・送信 → 返信を商談候補化</div>
+      </div>
+      <div class="card">
+        <div class="num">LINKEDIN</div>
+        <h3>接続後のフォローを止めない</h3>
+        <p>条件に合う見込み客候補を整理し、接続状況を管理。つながった相手にはお礼DM、その後のフォロー候補や日程調整への導線を準備します。</p>
+        <div class="note">例：候補抽出 → 接続申請 → 承認確認 → お礼DM → 数日後フォロー → 日程調整 → 商談化</div>
+      </div>
+      <div class="card">
+        <div class="num">X</div>
+        <h3>発信を、接点形成の入口にする</h3>
+        <p>他チャネルで作った発信内容をX向けに展開し、投稿実績や反応を記録。直接の自動営業ではなく、認知・接点づくりの入口として活用します。</p>
+        <div class="note">例：発信テーマ整理 → 投稿案作成 → 人が承認 → 投稿 → 指標・返信を記録 → 有望な反応は人が確認</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:28px">
+      <h3>SNS運用の目的を「投稿数」から「商談生成」へ。</h3>
+      <p>発信、DM、フォロー、掘り起こしを別々の作業にせず、CRMとつないで「誰に、いつ、次に何をするか」が出てくる状態を目指します。</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="content-pdca">
+  <div class="container">
+    <div class="eyebrow">05 CONTENT PDCA</div>
+    <h2>投稿を「作って終わり」にせず、商談につながる発信へ改善し続ける。</h2>
+    <p class="lead">AI社員は、投稿文を自動生成するだけではありません。事前リサーチ、ベンチマーク分析、テーマ選定、投稿案生成、結果集計、振り返りまでをつなぎ、次回の発信に学習結果を反映します。</p>
+
+    <div class="flowline" style="margin-top:34px">
+      <div class="flowstep">市場・ニュースを調査</div>
+      <div class="flowstep">競合・参考投稿を分析</div>
+      <div class="flowstep">投稿テーマを提案</div>
+      <div class="flowstep">投稿文を自動生成</div>
+      <div class="flowstep">反応・結果を集計</div>
+      <div class="flowstep">仮説を更新</div>
+    </div>
+    <div class="flow-caption">リサーチ → 生成 → 公開 → 計測 → 振り返り → 次回生成、までを1つの運用として回す。</div>
+
+    <div class="grid cols-3" style="margin-top:38px">
+      <div class="card">
+        <div class="num">RESEARCH</div>
+        <h3>投稿前の事前リサーチ</h3>
+        <p>業界ニュース、顧客との会話、動画・記事などから、今発信する価値があるテーマ候補を収集。AIが要点を整理し、投稿ネタとして使える状態にします。</p>
+      </div>
+      <div class="card">
+        <div class="num">BENCHMARK</div>
+        <h3>ベンチマーク投稿を分析</h3>
+        <p>参考アカウントの公開投稿から、冒頭の入り方、文章構造、テーマ、反応傾向などを分析。文章をコピーするのではなく、反応されやすい「型」を学びます。</p>
+      </div>
+      <div class="card">
+        <div class="num">GENERATION</div>
+        <h3>翌週分の投稿案をまとめて生成</h3>
+        <p>ネタ在庫、過去の投稿実績、テーマの偏り、直近の仮説をもとに複数本を自動生成。人は内容を確認・修正し、公開可否を判断します。</p>
+      </div>
+      <div class="card">
+        <div class="num">MEASUREMENT</div>
+        <h3>投稿結果を自動で蓄積</h3>
+        <p>投稿後の反応や問い合わせなどを記録し、「どのテーマ・切り口・導線が反応につながったか」を比較できる状態にします。</p>
+      </div>
+      <div class="card">
+        <div class="num">LEARNING</div>
+        <h3>AIが振り返りと仮説を出す</h3>
+        <p>一定期間ごとに投稿成績を比較し、伸びた要因・弱かった要因を整理。次回試すテーマや構成を「仮説」として提案します。</p>
+      </div>
+      <div class="card">
+        <div class="num">LEAD GEN</div>
+        <h3>反応者を商談生成につなげる</h3>
+        <p>投稿への反応を単なるエンゲージメントで終わらせず、CRMと照合し、見込み客候補として整理。発信PDCAを商談生成PDCAへつなぎます。</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:28px">
+      <h3>AIが回すのは「投稿作成」ではなく、「発信から商談までの学習サイクル」。</h3>
+      <p>人が毎回ネタを探し、文章を書き、結果をExcelで振り返るのではなく、AIとシステムが情報収集・生成・集計・分析を継続。人はブランド判断、最終承認、顧客との会話に集中します。</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="workflow">
+  <div class="container">
+    <div class="eyebrow">06 WORKFLOW</div>
+    <h2>商談が生まれるまでの流れを、切れ目なくつなぐ。</h2>
+
+    <div class="workflow" style="margin-top:34px">
+      <h3>① SNS・既存接点から商談候補をつくる</h3>
+      <div class="flowline">
+        <div class="flowstep">反応・候補を集める</div>
+        <div class="flowstep">CRMと照合</div>
+        <div class="flowstep">商談候補を絞る</div>
+        <div class="flowstep">DMを準備</div>
+        <div class="flowstep">人が送信・返信</div>
+        <div class="flowstep">商談化を記録</div>
+      </div>
+      <div class="flow-caption">AI社員が「商談候補を出すところ」までを継続し、会話が始まったら人が引き継ぐ。</div>
+    </div>
+
+    <div class="workflow" style="margin-top:40px">
+      <h3>② 一度接点を持った相手から商談をつくる</h3>
+      <div class="flowline">
+        <div class="flowstep">未返信を抽出</div>
+        <div class="flowstep">過去接点を確認</div>
+        <div class="flowstep">次の連絡候補化</div>
+        <div class="flowstep">文面を下書き</div>
+        <div class="flowstep">人が送信</div>
+        <div class="flowstep">次回予定を更新</div>
+      </div>
+      <div class="flow-caption">「思い出した時に追客」ではなく、「条件に合った人が毎日並ぶ」状態へ。</div>
+    </div>
+
+    <div class="workflow" style="margin-top:40px">
+      <h3>③ 商談化した案件を次の営業活動につなげる</h3>
+      <div class="flowline">
+        <div class="flowstep">商談予定を検知</div>
+        <div class="flowstep">事前リサーチ</div>
+        <div class="flowstep">商談</div>
+        <div class="flowstep">議事録を整理</div>
+        <div class="flowstep">お礼を下書き</div>
+        <div class="flowstep">次回アクション管理</div>
+      </div>
+      <div class="flow-caption">商談が生まれた後も、事前準備・記録・Next Actionを整え、次の受注活動につなげる。</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="usecase">
+  <div class="container">
+    <div class="eyebrow">07 USE CASE</div>
+    <h2>AI社員に任せる「商談生成業務」の具体例。</h2>
+    <p class="lead">Facebook、LinkedIn、X、CRM、表計算など、現在の運用に合わせて実装範囲を選びます。API・CSV・手動確認を組み合わせ、利用規約や権限を確認しながら設計します。</p>
+    <div class="table-wrap" style="margin-top:28px">
+      <table>
+        <thead><tr><th>業務</th><th>AI</th><th>システム</th><th>人</th></tr></thead>
+        <tbody>
+          <tr><td>Facebook反応者の商談候補化</td><td><span class="tag ai">AI</span> 反応者の情報・過去接点を整理し優先順位案を作る</td><td><span class="tag sys">SYSTEM</span> 反応者取得・CRM照合・一覧化</td><td><span class="tag human">HUMAN</span> DM対象を確認・送信</td></tr>
+          <tr><td>Facebook DMの継続運用</td><td><span class="tag ai">AI</span> 個別フックやフォロー文を下書き</td><td><span class="tag sys">SYSTEM</span> 未返信・経過日数・送信結果を管理</td><td><span class="tag human">HUMAN</span> 最終確認・返信対応</td></tr>
+          <tr><td>LinkedInからの商談生成</td><td><span class="tag ai">AI</span> 候補情報整理・お礼DM・フォロー文案</td><td><span class="tag sys">SYSTEM</span> 接続状況・フォロー時期・ログ管理</td><td><span class="tag human">HUMAN</span> 接続申請・DM送信・会話</td></tr>
+          <tr><td>Xからの接点形成</td><td><span class="tag ai">AI</span> 他チャネルの内容をX向けに再構成</td><td><span class="tag sys">SYSTEM</span> 投稿・指標・返信の記録</td><td><span class="tag human">HUMAN</span> 投稿承認・有望反応の確認</td></tr>
+          <tr><td>見込み客候補の整理</td><td><span class="tag ai">AI</span> 属性・接点を整理し、優先順位案を作る</td><td><span class="tag sys">SYSTEM</span> データ取得・重複確認・一覧化</td><td><span class="tag human">HUMAN</span> 対象条件を決める</td></tr>
+          <tr><td>アウトリーチ文面</td><td><span class="tag ai">AI</span> 既知情報から下書きを作る</td><td><span class="tag sys">SYSTEM</span> テンプレ差し込み・NG語確認</td><td><span class="tag human">HUMAN</span> 確認・送信</td></tr>
+          <tr><td>返信フォロー</td><td><span class="tag ai">AI</span> 過去文脈を踏まえた返答案</td><td><span class="tag sys">SYSTEM</span> 返信あり・未返信を抽出</td><td><span class="tag human">HUMAN</span> 関係性を見て対応</td></tr>
+          <tr><td>無反応フォロー</td><td><span class="tag ai">AI</span> 状況別の文面案</td><td><span class="tag sys">SYSTEM</span> 経過日数で対象抽出</td><td><span class="tag human">HUMAN</span> 送信可否を判断</td></tr>
+          <tr><td>休眠顧客の掘り起こし</td><td><span class="tag ai">AI</span> 過去接点を要約し再連絡案を作る</td><td><span class="tag sys">SYSTEM</span> 最終接触日などで抽出</td><td><span class="tag human">HUMAN</span> 重要案件は個別に調整</td></tr>
+          <tr><td>商談前リサーチ</td><td><span class="tag ai">AI</span> 公開情報を読み、要点を整理</td><td><span class="tag sys">SYSTEM</span> 当日の商談予定を検知</td><td><span class="tag human">HUMAN</span> 確認し質問設計へ反映</td></tr>
+          <tr><td>商談議事録</td><td><span class="tag ai">AI</span> 要約・論点・宿題を整理</td><td><span class="tag sys">SYSTEM</span> 録音・文字起こし・保存</td><td><span class="tag human">HUMAN</span> 内容確認</td></tr>
+          <tr><td>お礼・フォロー文</td><td><span class="tag ai">AI</span> 商談内容から下書き</td><td><span class="tag sys">SYSTEM</span> 宛先・期日・ログ管理</td><td><span class="tag human">HUMAN</span> 最終送信</td></tr>
+          <tr><td>Next Action管理</td><td><span class="tag ai">AI</span> 次の一手を提案</td><td><span class="tag sys">SYSTEM</span> 期限到来を通知</td><td><span class="tag human">HUMAN</span> 優先順位・実行判断</td></tr>
+          <tr><td>投稿前のネタリサーチ</td><td><span class="tag ai">AI</span> ニュース・記事・動画・商談ログから発信テーマ候補を整理</td><td><span class="tag sys">SYSTEM</span> 情報源の収集・保存・重複除外</td><td><span class="tag human">HUMAN</span> 採用するテーマを選ぶ</td></tr>
+          <tr><td>ベンチマーク投稿分析</td><td><span class="tag ai">AI</span> 冒頭・構造・テーマ・反応傾向を分析し、使える型を抽出</td><td><span class="tag sys">SYSTEM</span> 公開情報を定期取得・蓄積</td><td><span class="tag human">HUMAN</span> ブランドに合うか確認</td></tr>
+          <tr><td>投稿テキストの自動生成</td><td><span class="tag ai">AI</span> ネタ・過去実績・仮説から複数投稿を作成</td><td><span class="tag sys">SYSTEM</span> テーマ偏り・生成タイミング・ステータス管理</td><td><span class="tag human">HUMAN</span> 修正・承認・公開</td></tr>
+          <tr><td>投稿結果の自動PDCA</td><td><span class="tag ai">AI</span> 成績差を分析し、次回試す仮説・テーマを提案</td><td><span class="tag sys">SYSTEM</span> 反応・問い合わせ・商談化などを集計</td><td><span class="tag human">HUMAN</span> 方針変更を承認</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="eyebrow">08 BEFORE / AFTER</div>
+    <h2>「営業が自分で商談を探す」から、「商談候補が毎日届く」へ。</h2>
+    <div class="before-after" style="margin-top:32px">
+      <div class="ba-box">
+        <h3>Before</h3>
+        <ul><li>毎回ネタを探して投稿を書く</li><li>SNSを見て候補を探す</li><li>誰にDMしたか思い出す</li><li>返信・未返信を手作業で確認する</li><li>毎回DMを書く</li><li>追客日を自分で管理する</li><li>忙しいと新規開拓が止まる</li></ul>
+      </div>
+      <div class="arrow">→</div>
+      <div class="ba-box after">
+        <h3>After</h3>
+        <ul><li>リサーチ済みの投稿案が継続的に届く</li><li>投稿結果から次の仮説が更新される</li><li>商談候補が一覧で届く</li><li>過去接点が整理されている</li><li>DM・フォロー案が用意される</li><li>返信・未返信が整理される</li><li>再接触すべき相手が通知される</li><li>人は返信・商談・クロージングに集中する</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="eyebrow">09 EXISTING TOOLS</div>
+    <h2>今のツールを捨てず、その上にAIを置く。</h2>
+    <p class="lead">CRM、表計算、チャット、メール、SNS、議事録ツールなど、既存環境を活かす前提で設計します。API・CSV・通知・手動運用など、現実的な接続方法を確認して組み合わせます。</p>
+    <div class="tools">
+      <span class="tool">CRM / SFA</span><span class="tool">Notion</span><span class="tool">Google Workspace</span><span class="tool">Microsoft 365</span><span class="tool">スプレッドシート</span><span class="tool">メール</span><span class="tool">ビジネスチャット</span><span class="tool">Facebook</span><span class="tool">LinkedIn</span><span class="tool">X</span><span class="tool">文字起こし</span><span class="tool">フォーム / LP</span>
+    </div>
+    <div class="note">すべてのツールが直接連携できるとは限りません。連携方法・権限・利用規約・API仕様を確認した上で、実装範囲を決めます。</div>
+  </div>
+</section>
+
+<section class="section alt" id="roadmap">
+  <div class="container">
+    <div class="eyebrow">10 ROADMAP</div>
+    <h2>小さく作り、実際に使い、広げる。</h2>
+    <div class="roadmap" style="margin-top:30px">
+      <div class="phase"><div class="phase-no">PHASE 1</div><h3>1つの集客・商談生成レーン</h3><p>まずは「Facebook投稿PDCA→反応者DM」や「LinkedIn接続後フォロー」など、1つの入口に絞って仕組み化する。</p></div>
+      <div class="phase"><div class="phase-no">PHASE 2</div><h3>複数チャネルへ展開</h3><p>Facebook、LinkedIn、既存顧客、交流会など、複数の入口から商談候補が集まる状態へ広げる。</p></div>
+      <div class="phase"><div class="phase-no">PHASE 3</div><h3>商談生成エンジン化</h3><p>CRMを中心に、発信・反応・DM・フォロー・掘り起こし・商談化までを継続運用できる状態にする。</p></div>
+    </div>
+    <div class="callout" style="margin-top:24px"><h3>小さく作る → 使う → 改善する → 広げる</h3><p>最初から全営業プロセスを変えず、効果を測りやすい1業務から運用を固めます。</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="eyebrow">11 BOUNDARY</div>
+    <h2>できることと、最初から約束しないことを分ける。</h2>
+    <div class="boundary" style="margin-top:30px">
+      <div class="boundary-box yes">
+        <h3>現実的に狙えること</h3>
+        <ul><li>入力・転記負荷の削減</li><li>情報の整理と要約</li><li>Facebook・LinkedIn等の商談候補整理</li><li>DM・お礼・追客文の下書き</li><li>期限リマインド</li><li>追客候補・休眠顧客の抽出</li><li>商談前準備の標準化</li><li>活動ログの蓄積</li></ul>
+      </div>
+      <div class="boundary-box no">
+        <h3>最初から約束しないこと</h3>
+        <ul><li>完全無人化</li><li>完全自動営業</li><li>すべてのツールとの自動連携</li><li>重要顧客への無承認送信</li><li>価格・契約条件の完全自動判断</li><li>人間の確認ゼロ</li><li>100%の正確性</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="eyebrow">12 START</div>
+    <div class="start-box">
+      <div>
+        <h2>最初の「商談生成レーン」を1本つくる。</h2>
+        <p class="lead">最初から全チャネルを自動化する必要はありません。Facebook反応者、LinkedIn新規接点、休眠顧客など、現在すでに接点がある場所から1本選び、「候補抽出 → アプローチ → フォロー → 商談化」までをつなげます。</p>
+      </div>
+      <div class="criteria">
+        <div class="criterion">入力負荷が高い</div>
+        <div class="criterion">毎日・毎週発生する</div>
+        <div class="criterion">定型性が高い</div>
+        <div class="criterion">人がやりたくない</div>
+        <div class="criterion">ミス・漏れが起きやすい</div>
+        <div class="criterion">効果測定しやすい</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">営業・集客部門向け 商談生成AIエージェント資料｜特定企業の個別運用ではなく、汎用的な業務設計例として作成</div>
+</footer>
+
+</body>
+</html>
